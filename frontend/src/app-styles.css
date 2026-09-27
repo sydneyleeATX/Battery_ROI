@@ -52,6 +52,7 @@ h1,h2,h3,p { margin-top: 0; }
 .location-tag { margin-bottom: 8px; display: flex; align-items: center; gap: 9px; color: #49584e; font-size: 11px; font-weight: 600; }
 .location-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
 .location-divider { color: #a1aaa2; }
+.demo-banner { margin: -15px 0 20px; padding: 10px 13px; color: #31573f; border-left: 3px solid #98b66c; background: #e8eedc; font-size: 10px; font-weight: 700; letter-spacing: .75px; }
 .savings-band { min-height: 218px; padding: 33px 40px; display: flex; align-items: center; position: relative; overflow: hidden; color: #f6f8f1; background: var(--green-deep); }
 .savings-copy { position: relative; z-index: 1; }
 .savings-band .form-kicker { color: #c4dc99; }

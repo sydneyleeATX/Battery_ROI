@@ -7,7 +7,7 @@ interface AnalysisResults {
   customer: { avg_annual_energy_kwh: number; service_limit_amps: number };
   battery: { capacity_kwh: number; nominal_power_kw: number; efficiency: number };
   simulation: { total_savings: number; baseline_cost: number; battery_cost: number; charging_cost: number; discharging_value: number; charge_events: number; discharge_events: number; starting_soc_kwh: number; ending_soc_kwh: number };
-  metadata: { simulation_period_start: string; simulation_period_end: string };
+  metadata: { simulation_period_start: string; simulation_period_end: string; demo_mode?: boolean };
 }
 
 const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
@@ -33,6 +33,7 @@ export default function AnalysisResultsScreen() {
       </header>
       <main className="results-main">
         <div className="results-heading"><div><p className="eyebrow"><span className="eyebrow-line" /> YOUR HOME ENERGY SNAPSHOT</p><h1>More insight.<br /><span>More power.</span></h1></div><div className="location-tag"><span className="location-dot" /> ZIP {results.location.zip_code}<span className="location-divider">/</span>{results.location.settlement_point}</div></div>
+        {results.metadata.demo_mode && <div className="demo-banner" role="status">SIMULATED DEMO RESULTS · NOT A LIVE ANALYSIS</div>}
         <section className="savings-band" aria-label="Estimated annual savings">
           <div className="savings-copy"><p className="form-kicker">ESTIMATED ANNUAL {savings >= 0 ? 'SAVINGS' : 'COST CHANGE'}</p><p className={`savings-value ${savings < 0 ? 'negative-value' : ''}`}>{savings < 0 ? '−' : ''}{money(Math.abs(savings))}</p><p className="savings-caption">{savings >= 0 ? `${Math.abs(savingsPercent).toFixed(1)}% lower modeled electricity costs` : `${Math.abs(savingsPercent).toFixed(1)}% higher modeled electricity costs`}</p></div>
           <div className="savings-mark" aria-hidden="true"><ChartNoAxesCombined size={38} strokeWidth={1.4} /></div>
@@ -50,7 +51,7 @@ export default function AnalysisResultsScreen() {
             <article className="detail-column"><h3>Battery system</h3><div className="detail-row"><span>Energy capacity</span><strong>{results.battery.capacity_kwh} kWh</strong></div><div className="detail-row"><span>Power output</span><strong>{results.battery.nominal_power_kw} kW</strong></div><div className="detail-row"><span>Round-trip efficiency</span><strong>{(results.battery.efficiency * 100).toFixed(0)}%</strong></div><div className="detail-row"><span>Charging / discharge value</span><strong>{money(results.simulation.charging_cost)} / {money(results.simulation.discharging_value)}</strong></div></article>
           </div>
         </section>
-        <div className="data-note">Historical estimate based on ERCOT pricing and local weather from {periodStart} to {periodEnd}.</div>
+        <div className="data-note">{results.metadata.demo_mode ? 'Illustrative sample values for demonstration only.' : `Historical estimate based on ERCOT pricing and local weather from ${periodStart} to ${periodEnd}.`}</div>
         <button className="submit-button results-cta" onClick={() => navigate('/')}>Analyze another home <ArrowRight size={18} /></button>
       </main>
       <footer className="site-footer"><span>BASE POWER <span className="footer-divider">/</span> HOME ENERGY ANALYSIS</span><span>Estimates are illustrative and based on historical data.</span></footer>

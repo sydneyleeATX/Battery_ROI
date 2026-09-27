@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Check, LoaderCircle, Zap } from 'lucide-react';
+import { createDemoAnalysisResults } from '../demo/createDemoAnalysisResults';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
 
@@ -15,6 +16,7 @@ interface AnalysisResults {
 
 export default function HomeScreen() {
   const navigate = useNavigate();
+  const isDemoMode = new URLSearchParams(window.location.search).get('demo') === 'true';
   const [annualUsage, setAnnualUsage] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [errors, setErrors] = useState<{ usage?: string; zip?: string }>({});
@@ -34,6 +36,13 @@ export default function HomeScreen() {
     setIsSubmitting(true);
     sessionStorage.removeItem('analysisResults');
     try {
+      if (isDemoMode) {
+        const results = createDemoAnalysisResults(zipCode, usage);
+        sessionStorage.setItem('analysisResults', JSON.stringify(results));
+        navigate('/results?demo=true');
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/analyze-home`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,11 +72,11 @@ export default function HomeScreen() {
         <a className="brand" href="/" aria-label="Base Power home energy analysis">
           <span className="brand-mark"><Zap size={17} fill="currentColor" /></span><span className="brand-name">BASE<span>POWER</span></span>
         </a>
-        <span className="header-label">HOME BATTERY ANALYSIS</span>
+        <span className="header-label">{isDemoMode ? 'DEMO MODE' : 'HOME BATTERY ANALYSIS'}</span>
       </header>
       <main className="input-main">
         <section className="intro-panel" aria-labelledby="page-title">
-          <div className="eyebrow"><span className="eyebrow-line" /> ENERGY THAT WORKS HARDER</div>
+          <div className="eyebrow"><span className="eyebrow-line" /> POWER, WITH BACKUP BUILT IN</div>
           <h1 id="page-title">Your home.<br /><span>Your power.</span></h1>
           <p className="intro-copy">See how a home battery could work with your energy use and local electricity market.</p>
           <div className="promise-list" aria-label="Analysis details">
@@ -79,7 +88,16 @@ export default function HomeScreen() {
         </section>
         <section className="form-panel" aria-labelledby="form-title">
           <div className="form-heading"><p className="form-kicker">LET'S GET STARTED</p><h2 id="form-title">Tell us about your home</h2><p>We’ll use these details to shape your estimate.</p></div>
-          <form className="analysis-form" onSubmit={handleAnalyze} noValidate>
+          <form
+            className="analysis-form"
+            onSubmit={handleAnalyze}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter' || !(event.target instanceof HTMLInputElement) || isSubmitting) return;
+              event.preventDefault();
+              event.currentTarget.requestSubmit();
+            }}
+            noValidate
+          >
             <div className="field-group">
               <label htmlFor="annual-usage">Annual electricity use</label>
               <div className={`field-wrap ${errors.usage ? 'field-invalid' : ''}`}>
@@ -106,7 +124,7 @@ export default function HomeScreen() {
           </form>
         </section>
       </main>
-      <footer className="site-footer"><span>BASE POWER <span className="footer-divider">/</span> HOME ENERGY ANALYSIS</span><span>Estimate based on historical ERCOT data</span></footer>
+      <footer className="site-footer"><span>BASE POWER <span className="footer-divider">/</span> HOME ENERGY ANALYSIS</span><span>{isDemoMode ? 'Simulated results · no backend request' : 'Estimate based on historical ERCOT data'}</span></footer>
     </div>
   );
 }

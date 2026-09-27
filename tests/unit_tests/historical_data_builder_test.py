@@ -585,3 +585,57 @@ def test_missing_load_profile_raises_error(mock_load_zone):
             end_date=end_date,
             home_load_profile_path=load_profile_path,
         )
+
+
+@patch('backend.supporting_methods.weather.get_weather')
+@patch('backend.supporting_methods.retrieve_price.get_historical_prices_bulk')
+@patch('backend.location.zip_to_coord.get_zip_centroid')
+@patch('backend.location.load_zone_lookup.get_ercot_load_zone')
+def test_off_grid_analysis_dates_align_price_and_weather(
+    mock_load_zone,
+    mock_zip_centroid,
+    mock_prices_bulk,
+    mock_weather,
+    tmp_path,
+):
+    mock_load_zone.return_value = "LZ_NORTH"
+    mock_zip_centroid.return_value = (32.7767, -96.7970)
+
+    aligned_start = datetime(2024, 1, 1, 0, 0)
+    aligned_end = datetime(2024, 1, 1, 2, 0)
+    mock_prices_bulk.return_value = pd.DataFrame({
+        "Timestamp": pd.date_range(aligned_start, aligned_end, freq="15min"),
+        "Price ($/kWh)": [0.05] * 9,
+    })
+    mock_weather.return_value = [
+        {"timestamp": str(timestamp), "temperature_f": 75.0}
+        for timestamp in pd.date_range(aligned_start, aligned_end, freq="h")
+    ]
+
+    load_profile_path = tmp_path / "load_profile.csv"
+    pd.DataFrame({"hour": list(range(24)), "load_kw": [3.0] * 24}).to_csv(
+        load_profile_path,
+        index=False,
+    )
+
+    result = build_historical_data_from_location(
+        zip_code="75201",
+        start_date=datetime(2024, 1, 1, 0, 8, 37),
+        end_date=datetime(2024, 1, 1, 2, 8, 37),
+        home_load_profile_path=load_profile_path,
+    )
+
+    mock_prices_bulk.assert_called_once_with(
+        start_date=aligned_start,
+        end_date=aligned_end,
+        settlement_point="LZ_NORTH",
+    )
+    mock_weather.assert_called_once_with(
+        latitude=32.7767,
+        longitude=-96.7970,
+        start_date=aligned_start,
+        end_date=aligned_end,
+    )
+    assert len(result) == 9
+    assert result["Price ($/kWh)"].notna().all()
+    assert result["temperature_f"].notna().all()

@@ -101,9 +101,8 @@ def analyze_home(
         end_date = datetime.now()
     
     if start_date is None:
-        # Use 3 years of data for threshold calculation
-        # Simulation will use most recent year from this data
-        start_date = end_date - timedelta(days=3*365)
+        # modified for time considerations; ideally 3 years
+        start_date = end_date - timedelta(days=1 * 365)
     
     # ---------------------------------------------------------
     # 3. Build historical data for this location

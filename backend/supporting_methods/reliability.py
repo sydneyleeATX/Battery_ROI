@@ -1,6 +1,7 @@
 def download_puct_reliability():
     """
     Download PUCT SAIDI/SAIFI reliability data for Texas utilities.
+    To be implemented in future iteration
     """
     pass
 

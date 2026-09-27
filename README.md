@@ -31,7 +31,7 @@ base-roi/
 │   ├── location/     # Geocoding and utility mapping
 │   ├── data/         # Data ingestion (ERCOT, weather, reliability)
 │   ├── models/       # Load, battery, dispatch, ROI models
-│   └── database/     # Database models and connection
+│   
 ├── frontend/         # React application
 ├── data/            # Data storage
 │   ├── raw/         # Raw downloaded data
@@ -43,8 +43,6 @@ base-roi/
 ## Data Sources
 
 - **ERCOT**: Historical RTM load-zone prices and load profiles
-- **HIFLD**: Electric retail service territories
-- **PUCT**: Utility reliability data (SAIDI/SAIFI)
 - **NOAA**: Historical weather data
 - **EIA-861**: Utility rates and service territories
 
@@ -63,19 +61,13 @@ base-roi/
 pip install -r requirements.txt
 ```
 
-2. Set up PostgreSQL database:
-```bash
-createdb base_roi
-psql base_roi -c "CREATE EXTENSION postgis;"
-```
-
-3. Configure environment variables:
+2. Configure environment variables:
 ```bash
 cp .env.example .env
 # Edit .env with your API keys and database credentials
 ```
 
-4. Run the backend:
+3. Run the backend:
 ```bash
 cd backend
 python main.py
@@ -85,7 +77,6 @@ python main.py
 
 ### Phase 1 — Data Foundation
 - [x] Create project structure
-- [ ] Set up PostgreSQL/PostGIS
 - [ ] Download utility territory data
 - [ ] Build ZIP/location → utility function
 - [ ] Build utility → ERCOT zone mapping
@@ -105,30 +96,14 @@ python main.py
 
 ### Phase 4 — Battery
 - [ ] Encode Base Core specifications
-- [ ] Build SOC model
 - [ ] Build charge/discharge constraints
 - [ ] Build reserve constraint
 - [ ] Build dispatch simulator
 - [ ] Backtest against historical ERCOT data
 
-### Phase 5 — Economics
-- [ ] Add Base pricing by utility
-- [ ] Calculate annual value
-- [ ] Calculate annual net cost
-- [ ] Calculate payback
-- [ ] Calculate 5-year value
-
-### Phase 6 — Reliability
-- [ ] Collect PUCT SAIDI/SAIFI data
-- [ ] Build utility reliability table
-- [ ] Normalize reliability
-- [ ] Calculate reliability score
-- [ ] Calculate personalized backup duration
-
-### Phase 7 — Product
+### Phase 5 — Product
 - [ ] Build /analyze-home API endpoint
 - [ ] Build React input screen
-- [ ] Add Texas map
 - [ ] Add results screen
 - [ ] Add methodology/assumptions
 - [ ] Deploy
@@ -162,22 +137,8 @@ Analyze a home's Base battery economics and reliability.
   "battery": {
     "capacity_kwh": 39.2,
     "backup_hours": 14.8
-  },
-  "economics": {
-    "annual_value": 843,
-    "installation_cost": 695,
-    "monthly_fee": 19,
-    "five_year_net_value": 3270,
-    "payback_years": 1.34
-  },
-  "reliability": {
-    "saifi": 1.2,
-    "saidi_hours": 145,
-    "score": 74
   }
 }
 ```
 
-## License
 
-MIT

@@ -100,6 +100,9 @@ def build_historical_data_from_location(
         raise ValueError(
             f"start_date ({start_date}) must be <= end_date ({end_date})"
         )
+
+    start_date = pd.Timestamp(start_date).floor("h").to_pydatetime()
+    end_date = pd.Timestamp(end_date).floor("15min").to_pydatetime()
     
     print(f"Building historical data for ZIP {zip_code}")
     print(f"Period: {start_date.date()} to {end_date.date()}")
