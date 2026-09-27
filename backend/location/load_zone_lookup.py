@@ -6,6 +6,15 @@ LOAD_ZONES = gpd.read_file(
     "data/load_zones/ercot_load_zones.geojson"
 )
 
+# Mapping from GeoJSON zone names to ERCOT settlement point names
+ZONE_TO_SETTLEMENT_POINT = {
+    "North": "LZ_NORTH",
+    "South": "LZ_SOUTH",
+    "West": "LZ_WEST",
+    "Houston": "LZ_HOUSTON",
+}
+
+
 def get_ercot_load_zone(zip_code: str | int) -> str:
     """
     Determine ERCOT load zone based on ZIP Centroid
@@ -57,6 +66,16 @@ def get_ercot_load_zone(zip_code: str | int) -> str:
             f"ZIP centroid matched multiple ERCOT Load Zones: {zip_code}"
         )
 
-    return match.iloc[0]["NAME"]
+    zone_name = match.iloc[0]["NAME"]
+    
+    # Convert zone name to settlement point name
+    settlement_point = ZONE_TO_SETTLEMENT_POINT.get(zone_name)
+    
+    if settlement_point is None:
+        raise ValueError(
+            f"Unknown ERCOT zone name: {zone_name}"
+        )
+    
+    return settlement_point
 
 

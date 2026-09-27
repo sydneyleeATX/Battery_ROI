@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from backend.supporting_methods.retrieve_price import get_historical_price
+from backend.location.load_zone_lookup import get_ercot_load_zone
 
 
 def test_valid_price_lookup():
@@ -141,3 +142,126 @@ def test_missing_month_sheet_raises_error():
             timestamp=timestamp,
             settlement_point="LZ_NORTH"
         )
+
+
+# ============================================================
+# ZIP Code Parameter Tests
+# ============================================================
+
+def test_zip_code_to_settlement_point_returns_price():
+    """Location resolution followed by price retrieval should work."""
+    
+    timestamp = pd.Timestamp("2022-01-01 12:00:00")
+    # Dallas ZIP code - should map to LZ_NORTH
+    zip_code = "75201"
+    
+    # Step 1: Location resolution
+    settlement_point = get_ercot_load_zone(zip_code)
+    
+    # Step 2: Price retrieval
+    price = get_historical_price(
+        timestamp=timestamp,
+        settlement_point=settlement_point
+    )
+    
+    assert isinstance(price, float)
+    assert price >= 0
+
+
+def test_zip_code_maps_to_correct_settlement_point():
+    """ZIP code location resolution should map to correct settlement point."""
+    
+    timestamp = pd.Timestamp("2022-01-01 12:00:00")
+    # Dallas ZIP code - should map to LZ_NORTH
+    zip_code = "75201"
+    
+    # Resolve location
+    settlement_point = get_ercot_load_zone(zip_code)
+    
+    # Verify it mapped to LZ_NORTH
+    assert settlement_point == "LZ_NORTH"
+    
+    # Get price using resolved settlement point
+    price_via_zip = get_historical_price(
+        timestamp=timestamp,
+        settlement_point=settlement_point
+    )
+    
+    # Get price directly with settlement point
+    price_direct = get_historical_price(
+        timestamp=timestamp,
+        settlement_point="LZ_NORTH"
+    )
+    
+    # Should be the same
+    assert price_via_zip == price_direct
+
+
+def test_different_zip_codes_different_zones():
+    """ZIP codes in different zones should map to different settlement points."""
+    
+    timestamp = pd.Timestamp("2022-01-01 12:00:00")
+    
+    # Dallas (should map to LZ_NORTH)
+    north_settlement = get_ercot_load_zone("75201")
+    north_price = get_historical_price(
+        timestamp=timestamp,
+        settlement_point=north_settlement
+    )
+    
+    # Houston (should map to LZ_HOUSTON)
+    houston_settlement = get_ercot_load_zone("77002")
+    houston_price = get_historical_price(
+        timestamp=timestamp,
+        settlement_point=houston_settlement
+    )
+    
+    # Verify they mapped to different zones
+    assert north_settlement == "LZ_NORTH"
+    assert houston_settlement == "LZ_HOUSTON"
+    
+    assert isinstance(north_price, float)
+    assert isinstance(houston_price, float)
+
+
+def test_location_resolution_with_invalid_zip_raises_error():
+    """Invalid ZIP code should raise error during location resolution."""
+    
+    with pytest.raises(ValueError):
+        get_ercot_load_zone("00000")  # Invalid ZIP
+
+
+def test_location_resolution_separate_from_price_retrieval():
+    """Demonstrates proper separation of concerns."""
+    
+    timestamp = pd.Timestamp("2022-01-01 12:00:00")
+    zip_code = "75201"
+    
+    # Step 1: Location resolution (separate responsibility)
+    settlement_point = get_ercot_load_zone(zip_code)
+    
+    # Step 2: Price retrieval (separate responsibility)
+    price = get_historical_price(
+        timestamp=timestamp,
+        settlement_point=settlement_point
+    )
+    
+    assert settlement_point == "LZ_NORTH"
+    assert isinstance(price, float)
+    assert price >= 0
+
+
+def test_get_ercot_load_zone_returns_settlement_point():
+    """get_ercot_load_zone should return settlement point format."""
+    
+    # Test various ZIP codes map to correct settlement points
+    dallas_settlement = get_ercot_load_zone("75201")
+    houston_settlement = get_ercot_load_zone("77002")
+    
+    # Should return settlement point names (LZ_*)
+    assert dallas_settlement in ["LZ_NORTH", "LZ_SOUTH", "LZ_WEST", "LZ_HOUSTON"]
+    assert houston_settlement in ["LZ_NORTH", "LZ_SOUTH", "LZ_WEST", "LZ_HOUSTON"]
+    
+    # Verify specific mappings
+    assert dallas_settlement == "LZ_NORTH"
+    assert houston_settlement == "LZ_HOUSTON"

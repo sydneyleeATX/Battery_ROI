@@ -1,0 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+:root { font-family: 'DM Sans','Avenir Next',sans-serif; color: #17251f; background: #f5f5ef; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-optical-sizing: auto; font-weight: 400; --ink: #17251f; --muted: #65736b; --green: #387354; --green-deep: #234d38; --lime: #c8e18e; --paper: #f5f5ef; --line: #dfe4da; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button,input { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: wait; }
+a { color: inherit; }
+#root { min-height: 100vh; }
