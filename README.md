@@ -7,13 +7,12 @@ A comprehensive analysis tool for evaluating Base battery economics and reliabil
 This application helps Texas homeowners understand the economic value and reliability benefits of installing a Base battery system. It analyzes:
 
 - **Economic Value**: Estimated annual savings, ROI, and payback period
-- **Reliability**: Utility-level reliability metrics (SAIDI/SAIFI) and personalized backup duration
 - **Grid Services**: Battery dispatch optimization based on ERCOT wholesale prices
 
 ## Architecture
 
 ```
-React Frontend → FastAPI Backend → PostgreSQL/PostGIS Database
+React Frontend → FastAPI Backend 
                       ↓
         Location Engine | Energy Model | Reliability Model
                       ↓
@@ -51,7 +50,6 @@ base-roi/
 ### Prerequisites
 
 - Python 3.11+
-- PostgreSQL 15+ with PostGIS extension
 - Node.js 18+ (for frontend)
 
 ### Installation
@@ -76,7 +74,7 @@ python main.py
 ## Development Phases
 
 ### Phase 1 — Data Foundation
-- [x] Create project structure
+- [] Create project structure
 - [ ] Download utility territory data
 - [ ] Build ZIP/location → utility function
 - [ ] Build utility → ERCOT zone mapping
@@ -113,6 +111,7 @@ python main.py
 ### POST /analyze-home
 
 Analyze a home's Base battery economics and reliability.
+```
 
 **Request:**
 ```json
@@ -120,25 +119,64 @@ Analyze a home's Base battery economics and reliability.
   "zip_code": "76201",
   "monthly_bill": 250
 }
-```
-
 **Response:**
 ```json
 {
   "location": {
-    "zip": "76201",
-    "utility": "Oncor",
-    "ercot_zone": "LZ_NORTH"
+    "zip_code": "76201",
+    "settlement_point": "LZ_NORTH",
+    "latitude": 33.2148,
+    "longitude": -97.1331
   },
-  "home": {
-    "monthly_bill": 250,
-    "estimated_monthly_kwh": 1667
+  "customer": {
+    "avg_annual_energy_kwh": 12000,
+    "service_limit_amps": 200
   },
   "battery": {
     "capacity_kwh": 39.2,
-    "backup_hours": 14.8
+    "nominal_power_kw": 11,
+    "efficiency": 0.9
+  },
+  "price_thresholds": {
+    "1": { "charge": 0.035, "discharge": 0.075 },
+    "2": { "charge": 0.034, "discharge": 0.073 },
+    "3": { "charge": 0.032, "discharge": 0.071 },
+    "4": { "charge": 0.031, "discharge": 0.070 },
+    "5": { "charge": 0.033, "discharge": 0.074 },
+    "6": { "charge": 0.036, "discharge": 0.080 },
+    "7": { "charge": 0.038, "discharge": 0.085 },
+    "8": { "charge": 0.037, "discharge": 0.082 },
+    "9": { "charge": 0.034, "discharge": 0.076 },
+    "10": { "charge": 0.032, "discharge": 0.071 },
+    "11": { "charge": 0.033, "discharge": 0.072 },
+    "12": { "charge": 0.034, "discharge": 0.074 }
+  },
+  "simulation": {
+    "simulation_start": "2025-09-27T00:00:00",
+    "simulation_end": "2026-09-26T23:45:00",
+    "total_savings": 420.5,
+    "charging_cost": 180.0,
+    "discharging_value": 600.0,
+    "net_economic_benefit": 420.0,
+    "charge_events": 100,
+    "discharge_events": 98,
+    "starting_soc_kwh": 19.6,
+    "ending_soc_kwh": 20.0,
+    "backup_reserve_violations": 0,
+    "baseline_cost": 1500.0,
+    "battery_cost": 1079.5
+  },
+  "metadata": {
+    "analysis_date": "2026-09-27T12:00:00",
+    "data_period_start": "2025-09-27T12:00:00",
+    "data_period_end": "2026-09-27T12:00:00",
+    "simulation_period_start": "2025-09-27T00:00:00",
+    "simulation_period_end": "2026-09-26T23:45:00"
   }
 }
 ```
+
+
+
 
 
