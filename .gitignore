@@ -1,0 +1,10 @@
+﻿data/
+*.csv
+*.xlsx
+*.shp
+*.shx
+*.dbf
+*.prj
+__pycache__/
+.venv/
+venv/
