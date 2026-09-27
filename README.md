@@ -1,4 +1,4 @@
-# Base ROI Analysis
+# ValueVolt (Battery ROI Analysis)
 
 A comprehensive analysis tool for evaluating Base battery economics and reliability for Texas homeowners.
 
@@ -176,6 +176,9 @@ Analyze a home's Base battery economics and reliability.
 }
 ```
 
+### Next Steps
+1) Optimize speed of querying historical data
+2) Integrate 'Risk of Blackout Score'
 
 
 
