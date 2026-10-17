@@ -132,7 +132,7 @@ def analyze_home(
     )
     
     # ---------------------------------------------------------
-    # 5. Create battery with default Tesla Powerwall 3 specs
+    # 5. Create battery with default Base Power battery specs
     # ---------------------------------------------------------
     
     battery = Battery(

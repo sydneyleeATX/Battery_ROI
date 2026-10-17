@@ -130,7 +130,7 @@ class Battery:
             Effective maximum discharge power in kW.
         """
 
-        if not 0 < temperature_derating <= 1:
+        if not 0 <= temperature_derating <= 1:
             raise ValueError(
                 "temperature_derating must be between 0 and 1."
             )
@@ -432,7 +432,7 @@ class Battery:
         # CHARGE
         # --------------------------------------------------
 
-        if should_charge:
+        if should_charge and max_charge_kw > 0:
 
             max_charge_energy_kwh = (
                 max_charge_kw * INTERVAL_HOURS
@@ -457,7 +457,7 @@ class Battery:
         # DISCHARGE
         # --------------------------------------------------
 
-        elif should_discharge:
+        elif should_discharge and max_discharge_kw > 0:
 
             max_discharge_energy_kwh = (
                 max_discharge_kw * INTERVAL_HOURS

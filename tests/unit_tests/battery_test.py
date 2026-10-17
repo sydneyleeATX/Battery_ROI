@@ -220,11 +220,10 @@ def test_effective_discharge_power_with_temperature_derating():
     ) == pytest.approx(8.8)
 
 
-def test_effective_discharge_power_rejects_zero_derating():
+def test_effective_discharge_power_allows_zero_derating():
     battery = Battery()
 
-    with pytest.raises(ValueError):
-        battery.get_effective_discharge_power_kw(0.0)
+    assert battery.get_effective_discharge_power_kw(0.0) == pytest.approx(0.0)
 
 
 def test_effective_discharge_power_rejects_derating_above_one():
@@ -348,15 +347,14 @@ def test_effective_charge_power_rejects_invalid_voltage():
         )
 
 
-def test_effective_charge_power_rejects_invalid_temperature_derating():
+def test_effective_charge_power_allows_zero_and_rejects_invalid_temperature_derating():
     battery = Battery()
 
-    with pytest.raises(ValueError):
-        battery.get_effective_charge_power_kw(
-            temperature_derating=0.0,
-            service_limit_amps=200,
-            household_load_kw=5.0,
-        )
+    assert battery.get_effective_charge_power_kw(
+        temperature_derating=0.0,
+        service_limit_amps=200,
+        household_load_kw=5.0,
+    ) == pytest.approx(0.0)
 
     with pytest.raises(ValueError):
         battery.get_effective_charge_power_kw(
@@ -397,6 +395,20 @@ def test_effective_battery_power_temperature_limits_both_directions():
     # Temperature-limited battery power = 11 * 0.8 = 8.8kW
     assert result["max_charge_kw"] == pytest.approx(8.8)
     assert result["max_discharge_kw"] == pytest.approx(8.8)
+
+
+def test_effective_battery_power_zero_derating_disables_both_directions():
+    battery = Battery()
+
+    result = battery.get_effective_battery_power(
+        temperature_derating=0.0,
+        service_limit_amps=200,
+        household_load_kw=5.0,
+        inverter_limit_kw=11.0,
+    )
+
+    assert result["max_charge_kw"] == pytest.approx(0.0)
+    assert result["max_discharge_kw"] == pytest.approx(0.0)
 
 
 def test_effective_battery_power_inverter_limits_both_directions():
@@ -619,6 +631,34 @@ def test_get_economic_soc_limit():
     
     assert result == pytest.approx(battery.minimum_soc_kwh)
     assert result == pytest.approx(7.84)
+
+
+@pytest.mark.parametrize("price_kwh", [0.04, 0.15])
+def test_dispatch_idles_when_temperature_derating_is_zero(price_kwh):
+    from datetime import datetime
+
+    battery = Battery()
+    initial_soc_kwh = battery.soc_kwh
+    price_thresholds = {
+        1: {"charge": 0.05, "discharge": 0.12},
+    }
+
+    result = Battery.dispatch_battery(
+        battery=battery,
+        home_load_kw=5.0,
+        price_kwh=price_kwh,
+        price_thresholds=price_thresholds,
+        timestamp=datetime(2024, 1, 15, 12, 0),
+        temperature_derating=0.0,
+        service_limit_amps=200,
+        inverter_limit_kw=11.0,
+    )
+
+    assert result["action"] == "idle"
+    assert result["energy_kwh"] == pytest.approx(0.0)
+    assert result["max_charge_kw"] == pytest.approx(0.0)
+    assert result["max_discharge_kw"] == pytest.approx(0.0)
+    assert battery.soc_kwh == pytest.approx(initial_soc_kwh)
 
 
 # ============================================================

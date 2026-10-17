@@ -93,12 +93,7 @@ Then open your browser to `http://localhost:5173`
    - Enter Texas ZIP code
    - Click "Analyze My Home"
 
-2. **Map Screen** (`/map`)
-   - Confirm location on interactive Texas map
-   - Search by ZIP or click on map
-   - Click "Confirm & Analyze" to run analysis
-
-3. **Results Screen** (`/results`)
+2. **Results Screen** (`/results`)
    - View annual savings estimate
    - See battery performance metrics
    - Review cost comparison
@@ -212,14 +207,4 @@ const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 - Leaflet - Interactive maps
 - Lucide React - Icons
 
----
 
-## Next Steps
-
-1. ✅ Backend API is complete
-2. ✅ Frontend screens are built
-3. ⏳ Test the complete flow
-4. ⏳ Deploy to production
-5. ⏳ Add error handling improvements
-6. ⏳ Add loading states and animations
-7. ⏳ Implement proper geocoding for all Texas ZIP codes

@@ -72,7 +72,7 @@ export default function HomeScreen() {
         <a className="brand" href="/" aria-label="Base Power home energy analysis">
           <span className="brand-mark"><Zap size={17} fill="currentColor" /></span><span className="brand-name">BASE<span>POWER</span></span>
         </a>
-        <span className="header-label">{isDemoMode ? 'DEMO MODE' : 'HOME BATTERY ANALYSIS'}</span>
+        {!isDemoMode && <span className="header-label">HOME BATTERY ANALYSIS</span>}
       </header>
       <main className="input-main">
         <section className="intro-panel" aria-labelledby="page-title">
@@ -124,7 +124,7 @@ export default function HomeScreen() {
           </form>
         </section>
       </main>
-      <footer className="site-footer"><span>BASE POWER <span className="footer-divider">/</span> HOME ENERGY ANALYSIS</span><span>{isDemoMode ? 'Simulated results · no backend request' : 'Estimate based on historical ERCOT data'}</span></footer>
+      <footer className="site-footer"><span>BASE POWER <span className="footer-divider">/</span> HOME ENERGY ANALYSIS</span>{!isDemoMode && <span>Estimate based on historical ERCOT data</span>}</footer>
     </div>
   );
 }
